@@ -1,0 +1,15 @@
+== Description:
+
+This is a little script to allow you to get the latest news from your favorite rss feeds. What it started out as is a way to see the latest news headlines without having to jump over to a browser. The app turned into more of a commandline rss reader.
+
+Usage:
+
+The only thing that works right now is getting all the titles from your sections. like:
+
+    termnews News all all
+
+More will come later, but this is at least a start.
+
+== Personal Note:
+
+This is my first python application so please excuse the learning curve.
