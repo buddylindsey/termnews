@@ -23,6 +23,11 @@ class Feed(object):
     def __init__(self, url):
         self.rss = RssLib.RssLib(url).read()
     
+    def article_from_title(self, title):
+        index = self.rss['title'].index(r)
+        return Article(r, self.rss['link'][index], self.rss['pubDate'][index])
+
+        
     def articles(self):
         final = []
         for r in self.rss['title']:
@@ -31,8 +36,6 @@ class Feed(object):
 
         return final
 
-
-
 class Section(object):
     def __init__(self, section):
         self.section = section
@@ -40,21 +43,29 @@ class Section(object):
         self.config.read(path.expanduser('~/.termnews'))
         
     def feeds(self):
-        final = []
-
-        for f in self.config.items(self.section):
-            final.append(Feed(f[1]))
-
-        return final
+        return (Feed(f[1]) for f in self.config.items(self.section))
 
     def list(self):
         for s in self.config.sections():
             print s
+    
+    def feed_list(self):
+        print "List of Feeds in %s:" % self.section
+        for feed in self.config.items(self.section):
+            print "-%s" % feed[0]
+
+    def feed(self, feed):
+        for f in self.config.items(self.section):
+            if f[0] == feed:
+                return Feed(f[1]).articles 
+
 
 class ParamParser(object):
-    
     def process(self, section, feed, limit):
-        return Section(section)
+        if section != "all" and feed == "all" and limit == "all":
+            return Section(section)
+        elif section != "all" and feed != "all" and limit == "all":
+            return Section(section).feed(feed)
 
 def show_help():
     print """
@@ -74,9 +85,14 @@ You can also list your sections:
 
 def start():
     
-    if len(argv) != 2 and len(argv) != 4:
+    if len(argv) > 4: #!= 2 and len(argv) != 4:
         print "Please try using --help"
         exit()
+    elif len(argv) == 3:
+        script, section, feed = argv
+        if section != "all" and feed == "list":
+            Section(section).feed_list()
+            exit()
     elif len(argv) == 2:
         script, section = argv
         if section == "list":
@@ -94,4 +110,5 @@ def start():
         for a in f.articles():
             print a.title
 
-start()
+if __name__ == '__main__':
+    start()
